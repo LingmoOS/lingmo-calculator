@@ -1,4 +1,4 @@
-Source: cute-calculator
+Source: lingmo-calculator
 Section: devel
 Priority: optional
 Maintainer: CuteOS <cuteos@foxmail.com>
@@ -13,7 +13,7 @@ Build-Depends: cmake,
 Standards-Version: 4.5.0
 Homepage: https://github.com/cuteos/calculator
 
-Package: cute-calculator
+Package: lingmo-calculator
 Architecture: any
 Depends: qml-module-qtquick-controls2,
          qml-module-qtquick2,

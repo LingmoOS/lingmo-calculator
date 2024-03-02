@@ -3,8 +3,8 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.5
 
 
-import CuteUI 1.0 as CuteUI
-import Cute.Calculator 1.0
+import LingmoUI 1.0 as CuteUI
+import Lingmo.Calculator 1.0
 
 Item {
     id: zone
