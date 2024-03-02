@@ -1,9 +1,9 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import Cute.Calculator 1.0
+import Lingmo.Calculator 1.0
 import Qt.labs.platform 1.0
-import CuteUI 1.0 as CuteUI
+import LingmoUI 1.0 as CuteUI
 
 CuteUI.Window {
     id: rootWindow
@@ -35,7 +35,7 @@ CuteUI.Window {
         id: aboutDialog
         name: rootWindow.title
         description: qsTr("A simple calculator")
-        iconSource: "image://icontheme/cute-calculator"
+        iconSource: "image://icontheme/lingmo-calculator"
     }
 
     CuteUI.WindowBlur {

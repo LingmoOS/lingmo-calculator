@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(PROJECT_NAME cute-calculator)
+set(PROJECT_NAME lingmo-calculator)
 project(${PROJECT_NAME})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -41,7 +41,11 @@ if (MSVC)
     # do nothing
 else()
     file(GLOB TS_FILES translations/*.ts)
-    qt5_create_translation(QM_FILES ${TS_FILES})
+    foreach(filepath ${TS_FILES})
+        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" filename ${filepath})
+        list(APPEND ts_files_replaced ${filename})
+    endforeach()
+    qt5_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${ts_files_replaced})
     add_custom_target(translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
     add_dependencies(${PROJECT_NAME} translations)
 endif ()
@@ -50,7 +54,7 @@ endif ()
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/bin)
 
 install(FILES
-    cute-calculator.desktop
+    lingmo-calculator.desktop
     DESTINATION /usr/share/applications/
     COMPONENT Runtime
 )
