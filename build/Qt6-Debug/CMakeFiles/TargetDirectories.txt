@@ -1,0 +1,10 @@
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/lingmo-calculator.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/translations.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/edit_cache.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/rebuild_cache.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/list_install_components.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/install.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/install/local.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/install/strip.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/lingmo-calculator_autogen_timestamp_deps.dir
+/home/elysia/Documents/Projects/lingmo-calculator/build/Qt6-Debug/CMakeFiles/lingmo-calculator_autogen.dir

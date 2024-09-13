@@ -1,11 +1,11 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Lingmo.Calculator 1.0
-import Qt.labs.platform 1.0
-import LingmoUI 1.0 as CuteUI
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Lingmo.Calculator
+import Qt.labs.platform
+import LingmoUI 3.0 as LingmoUI
 
-CuteUI.Window {
+LingmoUI.Window {
     id: rootWindow
     width: 350
     height: 550
@@ -13,7 +13,7 @@ CuteUI.Window {
     minimumHeight: 550
     title: qsTr("Calculator")
 
-    background.color: CuteUI.Theme.darkMode ? Qt.rgba(46 / 255, 46 / 255, 46 / 255, 1.0)
+    background.color: LingmoUI.Theme.darkMode ? Qt.rgba(46 / 255, 46 / 255, 46 / 255, 1.0)
                                             : Qt.rgba(240 / 255, 238 / 255, 241 / 255, 1.0)
     background.opacity: rootWindow.compositing ? 0.95 : 1.0
 
@@ -31,14 +31,14 @@ CuteUI.Window {
         }
     }
 
-    CuteUI.AboutDialog {
+    LingmoUI.AboutDialog {
         id: aboutDialog
         name: rootWindow.title
         description: qsTr("A simple calculator")
         iconSource: "image://icontheme/lingmo-calculator"
     }
 
-    CuteUI.WindowBlur {
+    LingmoUI.WindowBlur {
         view: rootWindow
         geometry: Qt.rect(rootWindow.x, rootWindow.y, rootWindow.width, rootWindow.height)
         windowRadius: rootWindow.background.radius
@@ -55,7 +55,7 @@ CuteUI.Window {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: CuteUI.Units.smallSpacing
+        spacing: LingmoUI.Units.smallSpacing
 
         Zone {
             id: zone
@@ -70,11 +70,11 @@ CuteUI.Window {
             Rectangle {
                 z: -1
                 anchors.fill: parent
-                color: CuteUI.Theme.secondBackgroundColor
+                color: LingmoUI.Theme.secondBackgroundColor
                 opacity: 0.9
             }
 
-            onPressed: zone.appendToTextField(text)
+            onPressed: function(text){zone.appendToTextField(text);}
         }
     }
 
