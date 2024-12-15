@@ -1,4 +1,4 @@
-liblingmo (0.6.3) experimental; urgency=high
+lingmo-calculator (0.6.3) experimental; urgency=high
 
   * Fix circular dependency problem [Elysia]
 
