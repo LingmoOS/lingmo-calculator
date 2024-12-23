@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v4
     
     - name: Add Debian experiment repository
-      run: echo "deb http://deb.debian.org/debian experimental main contrib non-free non-free-firmware" > /etc/apt/sources.list.d/experimental.list
+      run: echo "deb [trusted=yes] https://download.opensuse.org/repositories/home:/elysia:/LingmoOS:/CI/Debian_Testing ./" > /etc/apt/sources.list.d/lingmo-ci.list
 
     - name: Update repository
       run: apt-get update -y
