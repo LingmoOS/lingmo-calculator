@@ -1,10 +1,10 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.5
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
 
 
-import LingmoUI 1.0 as CuteUI
-import Lingmo.Calculator 1.0
+import LingmoUI.CompatibleModule 3.0 as LingmoUI
+import Lingmo.Calculator
 
 Item {
     id: zone
@@ -30,7 +30,7 @@ Item {
             }
 
             delegate: Item {
-                height: label.implicitHeight + CuteUI.Units.largeSpacing * 2
+                height: label.implicitHeight + LingmoUI.Units.largeSpacing * 2
                 width: parent ? parent.width : undefined
 
                 Label {
@@ -39,10 +39,10 @@ Item {
                     horizontalAlignment: Qt.AlignRight
                     text: historyModel.count > 0 ? historyModel.get(index).text : ""
                     elide: Text.ElideMiddle
-                    color: CuteUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.disabledTextColor
 
-                    leftPadding: CuteUI.Units.largeSpacing
-                    rightPadding: CuteUI.Units.largeSpacing
+                    leftPadding: LingmoUI.Units.largeSpacing
+                    rightPadding: LingmoUI.Units.largeSpacing
 
                     MouseArea {
                         hoverEnabled: true
@@ -68,8 +68,8 @@ Item {
                 color: "transparent"
             }
 
-            leftPadding: CuteUI.Units.largeSpacing
-            rightPadding: CuteUI.Units.largeSpacing
+            leftPadding: LingmoUI.Units.largeSpacing
+            rightPadding: LingmoUI.Units.largeSpacing
         }
     }
 
