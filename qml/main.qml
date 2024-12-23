@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Lingmo.Calculator
 import Qt.labs.platform
-import LingmoUI 3.0 as LingmoUI
+import LingmoUI.CompatibleModule 3.0 as LingmoUI
 
 LingmoUI.Window {
     id: rootWindow

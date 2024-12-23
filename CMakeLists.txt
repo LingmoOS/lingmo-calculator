@@ -51,7 +51,7 @@ else()
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" filename ${filepath})
         list(APPEND ts_files_replaced ${filename})
     endforeach()
-    qt5_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${ts_files_replaced})
+    qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${ts_files_replaced})
     add_custom_target(translations ALL DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
 endif ()
 

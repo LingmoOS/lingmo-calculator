@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import LingmoUI 3.0 as LingmoUI
+import LingmoUI.CompatibleModule 3.0 as LingmoUI
 
 Item {
     id: control
