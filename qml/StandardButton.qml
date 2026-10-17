@@ -39,6 +39,9 @@ Item {
                      : _mouseArea.pressed ? flatPressedBg : _mouseArea.containsMouse
                                                            ? flatHoveredBg : flatBg
         opacity: !flat ? _mouseArea.pressed || _mouseArea.containsMouse ? 0.6 : 0.7 : 1.0
+
+        Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
+        Behavior on opacity { NumberAnimation { duration: LingmoUI.Units.veryShortDuration } }
     }
 
     MouseArea {

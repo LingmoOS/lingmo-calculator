@@ -13,8 +13,6 @@ LingmoUI.Window {
     minimumHeight: 550
     title: qsTr("Calculator")
 
-    background.color: LingmoUI.Theme.darkMode ? Qt.rgba(46 / 255, 46 / 255, 46 / 255, 1.0)
-                                            : Qt.rgba(240 / 255, 238 / 255, 241 / 255, 1.0)
     background.opacity: rootWindow.compositing ? 0.95 : 1.0
 
     MenuBar {
