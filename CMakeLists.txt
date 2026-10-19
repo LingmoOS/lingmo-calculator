@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 set(PROJECT_NAME lingmo-calculator)
 project(${PROJECT_NAME})
@@ -7,10 +7,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(QT Core Gui Quick Widgets QuickControls2 LinguistTools)
+set(QT Core Gui Quick QuickControls2 LinguistTools)
 find_package(Qt6 REQUIRED ${QT})
 if (MSVC)
     # fix warning C4819: The file contains a character that cannot be represented in the current code page (936).
@@ -19,6 +19,7 @@ if (MSVC)
 endif ()
 
 find_package(LingmoUI3 3.0 REQUIRED)
+include(GNUInstallDirs)
 
 set(SRCS
     main.cpp
@@ -38,6 +39,7 @@ add_executable(${PROJECT_NAME} ${SRCS} ${RESOURCES})
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         Qt6::Core
+        Qt6::Gui
         Qt6::Quick
         Qt6::QuickControls2
     PRIVATE
@@ -51,16 +53,16 @@ else()
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" filename ${filepath})
         list(APPEND ts_files_replaced ${filename})
     endforeach()
-    qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${ts_files_replaced})
+    qt_add_translation(QM_FILES ${ts_files_replaced})
     add_custom_target(translations ALL DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
 endif ()
 
 
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/bin)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(FILES
     lingmo-calculator.desktop
-    DESTINATION /usr/share/applications/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
     COMPONENT Runtime
 )
 

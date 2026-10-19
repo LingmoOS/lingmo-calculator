@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Calculator
+Name[pt_BR]=Calculadora
 Name[zh_CN]=计算器
 Exec=/usr/bin/lingmo-calculator
 Icon=lingmo-calculator
