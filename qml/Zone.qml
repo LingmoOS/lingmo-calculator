@@ -39,7 +39,7 @@ Item {
                     horizontalAlignment: Qt.AlignRight
                     text: historyModel.count > 0 ? historyModel.get(index).text : ""
                     elide: Text.ElideMiddle
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
 
                     leftPadding: LingmoUI.Units.largeSpacing
                     rightPadding: LingmoUI.Units.largeSpacing
@@ -61,7 +61,7 @@ Item {
             selectByMouse: true
             horizontalAlignment: TextInput.AlignRight
             focus: Qt.StrongFocus
-            font.pixelSize: 24
+            font.pointSize: LingmoUI.Units.fontTitle
 
             background: Rectangle {
                 border.width: 0

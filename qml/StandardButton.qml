@@ -39,6 +39,9 @@ Item {
                      : _mouseArea.pressed ? flatPressedBg : _mouseArea.containsMouse
                                                            ? flatHoveredBg : flatBg
         opacity: !flat ? _mouseArea.pressed || _mouseArea.containsMouse ? 0.6 : 0.7 : 1.0
+
+        Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
+        Behavior on opacity { NumberAnimation { duration: LingmoUI.Units.veryShortDuration } }
     }
 
     MouseArea {
@@ -70,7 +73,7 @@ Item {
         color: !flat ? LingmoUI.Theme.textColor : LingmoUI.Theme.highlightedTextColor
         text: control.text
         visible: !_icon.visible
-        minimumPointSize: Math.round(control.height / 5)
-        font.pointSize: Math.round(control.height / 5)
+        minimumPointSize: Math.max(1, Math.round(control.height / 5))
+        font.pointSize: Math.max(1, Math.round(control.height / 5))
     }
 }
