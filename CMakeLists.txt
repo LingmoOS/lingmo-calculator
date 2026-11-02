@@ -18,6 +18,8 @@ find_package(LingmoSDK REQUIRED)
 # around them is new.
 add_library(calculator-core STATIC
     src/core/calculator.cpp
+    src/core/programmer_calc.cpp
+    src/core/date_calc.cpp
     engine/hmath.cpp
     engine/number.c
 )
@@ -25,6 +27,11 @@ target_include_directories(calculator-core PUBLIC src engine)
 
 add_library(calculator-ui STATIC
     src/calculatorwindow.cpp
+    src/modes/standard_page.cpp
+    src/modes/scientific_page.cpp
+    src/modes/programmer_page.cpp
+    src/modes/date_page.cpp
+    src/modes/graph_page.cpp
 )
 target_include_directories(calculator-ui PUBLIC src)
 target_link_libraries(calculator-ui PUBLIC calculator-core Lingmo::SDK)

@@ -34,6 +34,9 @@ struct Result
     Error error = Error::None;
 };
 
+// Whether trig functions receive/return degrees or radians.
+enum class AngleUnit { Radians, Degrees };
+
 // A small exact expression evaluator: numbers, + - * / ^, a postfix % (a
 // hundredth) and unary signs, with parentheses. It works on HMath's
 // arbitrary-precision decimals, so 0.1 + 0.2 is exactly 0.3 and 1 / 3 keeps
@@ -63,6 +66,28 @@ public:
     // Drops a trailing '=' and closes the parentheses left open, so
     // "2*(3+4" evaluates as 14.
     static std::string autoFix(const std::string& expression);
+};
+
+// Extends Calculator with named functions (sin, cos, log, sqrt, …),
+// constants (pi, e) and an angle unit switch for trig functions.
+// The standard four-function grammar is a strict subset.
+class ScientificCalculator
+{
+public:
+    explicit ScientificCalculator(AngleUnit unit = AngleUnit::Radians);
+
+    void setAngleUnit(AngleUnit unit) { m_unit = unit; }
+    AngleUnit angleUnit() const { return m_unit; }
+
+    // Same semantics as Calculator::evaluate plus functions and constants.
+    Result evaluate(const std::string& expression) const;
+
+    // Evaluate a double for graph sampling; quiet NaN on error.
+    double evaluateDouble(const std::string& expression, const std::string& variable,
+                          double value) const;
+
+private:
+    AngleUnit m_unit;
 };
 
 } // namespace calculator
