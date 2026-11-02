@@ -1,4 +1,4 @@
-﻿# lingmo-calculator
+# lingmo-calculator
 
 A native Lingmo OS calculator with exact decimal arithmetic.
 

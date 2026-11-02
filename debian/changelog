@@ -1,4 +1,4 @@
-﻿lingmo-calculator (1.0.0) unstable; urgency=medium
+lingmo-calculator (1.0.0) unstable; urgency=medium
 
   * Rewrite as a native Lingmo SDK application.
 
