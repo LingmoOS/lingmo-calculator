@@ -4,8 +4,11 @@
 #include "calculatorwindow.h"
 
 #include "ui/application.h"
+#include "ui/clipboard.h"
 
 #include <gtest/gtest.h>
+
+#include <string>
 
 int main(int argc, char **argv)
 {
@@ -37,4 +40,27 @@ TEST(CalculatorWindow, ClearsAndBackspaces)
     window.clear();
     EXPECT_TRUE(window.expression().empty());
     EXPECT_EQ(window.result(), "0");
+}
+
+TEST(CalculatorWindow, HandlesParenthesesAndPowers)
+{
+    calculator::CalculatorWindow window;
+    window.append("(2+3)^2");
+    window.evaluate();
+    EXPECT_EQ(window.result(), "25");
+}
+
+TEST(CalculatorWindow, CopiesTheResultAndClearsHistory)
+{
+    calculator::CalculatorWindow window;
+    window.append("6*7");
+    window.evaluate();
+    window.copyResult();
+    std::string copied;
+    Lingmo::ui::Clipboard::requestText([&copied](std::string text) { copied = std::move(text); });
+    EXPECT_EQ(copied, "42");
+    ASSERT_EQ(window.history().size(), 1u);
+    window.clearHistory();
+    EXPECT_TRUE(window.history().empty());
+    EXPECT_EQ(window.result(), "42");
 }

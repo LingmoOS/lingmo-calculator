@@ -6,7 +6,9 @@
 #include "core/calculator.h"
 
 #include "base/i18n.h"
+#include "base/timer.h"
 #include "ui/application.h"
+#include "ui/clipboard.h"
 #include "ui/keys.h"
 #include "ui/label.h"
 #include "ui/painter.h"
@@ -16,6 +18,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -48,6 +51,16 @@ public:
     }
 
     std::function<void()> onClicked;
+
+    void setText(std::string text)
+    {
+        if (m_text == text)
+            return;
+        m_text = std::move(text);
+        m_label->setText(m_text);
+        requestLayout();
+        requestPaint();
+    }
 
     bool acceptsPointer() const override { return true; }
 
@@ -123,7 +136,13 @@ public:
         m_resultLabel->setWeight(600);
         m_resultLabel->setElide(Label::Elide::Middle);
 
+        m_copiedTimer.setInterval(std::chrono::milliseconds(1400));
+        m_copiedTimer.onTimeout = [this] {
+            if (m_copyButton)
+                m_copyButton->setText(tr("Copy"));
+        };
         addKeys();
+        addUtilityKeys();
         refresh();
     }
 
@@ -135,6 +154,7 @@ public:
             if (std::isdigit(static_cast<unsigned char>(text.front())) || text == "." || text == "(")
                 m_expression.clear();
             m_result.clear();
+            m_lastExpression.clear();
             m_justEvaluated = false;
         }
         if (m_expression.size() + text.size() > kMaximumExpression)
@@ -160,8 +180,25 @@ public:
         } else {
             m_history.clear();
         }
+        m_lastExpression.clear();
         m_justEvaluated = false;
         refresh();
+    }
+
+    void clearHistory()
+    {
+        m_history.clear();
+        refresh();
+    }
+
+    void copyResult()
+    {
+        const std::string value = m_result.empty() ? std::string("0") : m_result;
+        Clipboard::setText(value);
+        if (m_copyButton) {
+            m_copyButton->setText(tr("Copied"));
+            m_copiedTimer.start();
+        }
     }
 
     void toggleSign()
@@ -191,6 +228,7 @@ public:
         m_history.push_back(expression + " = " + value.text);
         while (m_history.size() > size_t(kMaximumHistory))
             m_history.erase(m_history.begin());
+        m_lastExpression = m_expression;
         m_result = value.text;
         m_expression = value.text;
         m_justEvaluated = true;
@@ -234,7 +272,16 @@ protected:
         m_resultLabel->setGeometry({display.x + inner, display.bottom() - 54,
                                display.width - 2 * inner, 46});
 
-        const double top = display.bottom() + 10;
+        const double utilityTop = display.bottom() + 8;
+        const double utilityHeight = 28;
+        const double utilityGap = 8;
+        const double utilityWidth = (rect.width - 2 * margin - utilityGap * 4) / 5;
+        for (std::size_t i = 0; i < m_utilityButtons.size(); ++i) {
+            m_utilityButtons[i]->setGeometry({margin + i * (utilityWidth + utilityGap), utilityTop,
+                                              utilityWidth, utilityHeight});
+        }
+
+        const double top = utilityTop + utilityHeight + 8;
         const double width = rect.width - 2 * margin;
         const double height = rect.height - top - margin;
         const double gap = 8;
@@ -250,6 +297,16 @@ protected:
 
     bool keyPress(const KeyEvent& event) override
     {
+        if (event.modifiers & ControlModifier) {
+            if (event.key == key::letter('c')) {
+                copyResult();
+                return true;
+            }
+            if (event.key == key::letter('l')) {
+                clearHistory();
+                return true;
+            }
+        }
         if (!event.text.empty()) {
             const std::string& text = event.text;
             if (text.size() == 1) {
@@ -323,6 +380,34 @@ private:
         }
     }
 
+    void addUtilityKeys()
+    {
+        struct Utility
+        {
+            const char* text;
+            const char* action;
+        };
+        const Utility utilities[] = {
+                {"(", "("}, {")", ")"}, {"^", "^"}, {"Copy", "COPY"}, {"Clear", "CLEAR"},
+        };
+        for (const Utility& utility : utilities) {
+            CalcButton* button = addChild<CalcButton>(utility.text, false, 12.5);
+            const std::string action = utility.action;
+            button->onClicked = [this, action] {
+                if (action == "COPY") {
+                    copyResult();
+                } else if (action == "CLEAR") {
+                    clearHistory();
+                } else {
+                    append(action);
+                }
+            };
+            if (action == "COPY")
+                m_copyButton = button;
+            m_utilityButtons.push_back(button);
+        }
+    }
+
     void refresh()
     {
         const std::size_t count = m_history.size();
@@ -331,7 +416,7 @@ private:
                     count >= std::size_t(3 - i) ? count - std::size_t(3 - i) : count;
             m_historyLines[i]->setText(offset < count ? m_history[offset] : std::string());
         }
-        m_expressionLabel->setText(m_justEvaluated ? std::string() : m_expression);
+        m_expressionLabel->setText(m_justEvaluated ? m_lastExpression : m_expression);
         m_resultLabel->setText(m_result.empty() ? std::string("0") : m_result);
         requestLayout();
         requestPaint();
@@ -340,10 +425,14 @@ private:
     Label* m_historyLines[3] = {};
     Label* m_expressionLabel = nullptr;
     Label* m_resultLabel = nullptr;
+    CalcButton* m_copyButton = nullptr;
     std::vector<CalcButton*> m_buttons;
+    std::vector<CalcButton*> m_utilityButtons;
     std::string m_expression;
     std::string m_result;
+    std::string m_lastExpression;
     std::vector<std::string> m_history;
+    base::Timer m_copiedTimer;
     bool m_justEvaluated = false;
 };
 
@@ -362,7 +451,9 @@ CalculatorWindow::~CalculatorWindow() = default;
 void CalculatorWindow::append(const std::string& text) { m_root->append(text); }
 void CalculatorWindow::backspace() { m_root->backspace(); }
 void CalculatorWindow::clear() { m_root->clear(); }
+void CalculatorWindow::clearHistory() { m_root->clearHistory(); }
 void CalculatorWindow::evaluate() { m_root->evaluate(); }
+void CalculatorWindow::copyResult() { m_root->copyResult(); }
 const std::string& CalculatorWindow::expression() const { return m_root->expression(); }
 std::string CalculatorWindow::result() const
 {

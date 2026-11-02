@@ -33,7 +33,9 @@ public:
     void append(const std::string &text);
     void backspace();
     void clear();
+    void clearHistory();
     void evaluate();
+    void copyResult();
 
     const std::string &expression() const;
     std::string result() const;

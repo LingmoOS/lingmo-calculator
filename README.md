@@ -6,7 +6,7 @@ A native Lingmo OS calculator with exact decimal arithmetic.
 
 - `+`, `-`, `*`, `/`, `^`, parentheses and percentages
 - Exact decimals through the HMath engine
-- Keyboard input and a history of recent calculations
+- Keyboard input, result copy and a history of recent calculations
 - Light and dark themes
 
 ## Build
