@@ -12,6 +12,7 @@
 #include "ui/keys.h"
 #include "ui/label.h"
 #include "ui/painter.h"
+#include "ui/path.h"
 #include "ui/text_field.h"
 #include "ui/theme.h"
 #include "ui/view.h"
@@ -34,7 +35,7 @@ class GraphPage::GraphView : public View
 public:
     GraphView()
     {
-        setCursorShape(CursorShape::CrossHair);
+        setCursorShape(CursorShape::Move);
         setTracksHover(true);
     }
 
@@ -78,7 +79,10 @@ protected:
         const double yMax = std::isnan(m_yMax) ?  10.0 : m_yMax;
         const double xRange = m_xMax - m_xMin;
         const double yRange = yMax - yMin;
-        if (xRange <= 0 || yRange <= 0) return;
+        if (xRange <= 0 || yRange <= 0) {
+            canvas.restore();
+            return;
+        }
 
         // Map world → canvas.
         auto wx = [&](double x) { return (x - m_xMin) / xRange * w; };
@@ -86,9 +90,9 @@ protected:
 
         // Grid lines.
         canvas.setStrokeColor({
-            theme.disabledText.red / 255.0,
-            theme.disabledText.green / 255.0,
-            theme.disabledText.blue / 255.0,
+            theme.disabledText.r / 255.0,
+            theme.disabledText.g / 255.0,
+            theme.disabledText.b / 255.0,
             0.07});
         canvas.setLineWidth(0.5);
 
@@ -96,66 +100,76 @@ protected:
         const double xStart = std::ceil(m_xMin / xStep) * xStep;
         for (double x = xStart; x <= m_xMax + 1e-9; x += xStep) {
             const double px = wx(x);
-            canvas.moveTo(px, 0);
-            canvas.lineTo(px, h);
-            canvas.stroke();
+            Path line;
+            line.moveTo({px, 0});
+            line.lineTo({px, h});
+            canvas.strokePath(line);
         }
 
         const double yStep = niceStep(yRange, 6);
         const double yStart = std::ceil(yMin / yStep) * yStep;
         for (double y = yStart; y <= yMax + 1e-9; y += yStep) {
             const double py = wy(y);
-            canvas.moveTo(0, py);
-            canvas.lineTo(w, py);
-            canvas.stroke();
+            Path line;
+            line.moveTo({0, py});
+            line.lineTo({w, py});
+            canvas.strokePath(line);
         }
 
         // Axes.
         canvas.setStrokeColor({
-            theme.disabledText.red / 255.0,
-            theme.disabledText.green / 255.0,
-            theme.disabledText.blue / 255.0,
+            theme.disabledText.r / 255.0,
+            theme.disabledText.g / 255.0,
+            theme.disabledText.b / 255.0,
             0.28});
         canvas.setLineWidth(1.0);
 
         if (m_xMin <= 0 && 0 <= m_xMax) {
             const double px = wx(0);
-            canvas.moveTo(px, 0);
-            canvas.lineTo(px, h);
-            canvas.stroke();
+            Path line;
+            line.moveTo({px, 0});
+            line.lineTo({px, h});
+            canvas.strokePath(line);
         }
         if (yMin <= 0 && 0 <= yMax) {
             const double py = wy(0);
-            canvas.moveTo(0, py);
-            canvas.lineTo(w, py);
-            canvas.stroke();
+            Path line;
+            line.moveTo({0, py});
+            line.lineTo({w, py});
+            canvas.strokePath(line);
         }
 
         // Curve.
         if (!m_expression.empty() && !m_samples.empty()) {
             canvas.setStrokeColor({
-                theme.highlight.red   / 255.0,
-                theme.highlight.green / 255.0,
-                theme.highlight.blue  / 255.0,
+                theme.highlight.r / 255.0,
+                theme.highlight.g / 255.0,
+                theme.highlight.b / 255.0,
                 1.0});
             canvas.setLineWidth(2.0);
 
+            Path curve;
             bool penDown = false;
             for (const auto& pt : m_samples) {
                 if (std::isnan(pt.second)) {
-                    penDown = false;
+                    if (penDown) {
+                        canvas.strokePath(curve);
+                        curve = Path();
+                        penDown = false;
+                    }
                     continue;
                 }
                 const double px = wx(pt.first);
                 const double py = wy(pt.second);
                 if (!penDown) {
-                    canvas.moveTo(px, py);
+                    curve.moveTo({px, py});
                     penDown = true;
                 } else {
-                    canvas.lineTo(px, py);
+                    curve.lineTo({px, py});
                 }
             }
-            canvas.stroke();
+            if (penDown)
+                canvas.strokePath(curve);
         }
 
         canvas.restore();
@@ -164,6 +178,7 @@ protected:
     void pointerPress(const PointerEvent& event) override
     {
         if (event.button == MouseButton::Left) {
+            m_dragging = true;
             m_dragStart = event.position;
             m_dragXMin  = m_xMin;
             m_dragXMax  = m_xMax;
@@ -172,7 +187,7 @@ protected:
 
     void pointerMove(const PointerEvent& event) override
     {
-        if (!(event.buttons & MouseButton::Left)) return;
+        if (!m_dragging) return;
         const double dx = event.position.x - m_dragStart.x;
         const double w  = std::max(1.0, geometry().width);
         const double shift = -dx / w * (m_dragXMax - m_dragXMin);
@@ -182,15 +197,20 @@ protected:
         requestPaint();
     }
 
-    void scroll(const ScrollEvent& event) override
+    void pointerRelease(const PointerEvent&) override
     {
-        const double factor = (event.delta.y > 0) ? 0.85 : 1.0 / 0.85;
-        const double centre = m_xMin + (event.position.x / std::max(1.0, geometry().width))
-                              * (m_xMax - m_xMin);
+        m_dragging = false;
+    }
+
+    bool scroll(const ScrollEvent& event) override
+    {
+        const double factor = (event.deltaY > 0) ? 0.85 : 1.0 / 0.85;
+        const double centre = (m_xMin + m_xMax) / 2.0;
         m_xMin = centre + (m_xMin - centre) * factor;
         m_xMax = centre + (m_xMax - centre) * factor;
         sample();
         requestPaint();
+        return true;
     }
 
 private:
@@ -248,7 +268,7 @@ private:
     PointF m_dragStart{};
     double m_dragXMin = -10.0;
     double m_dragXMax =  10.0;
-
+    bool m_dragging = false;
     bool m_allNaN = false;
 };
 
