@@ -20,3 +20,8 @@ sudo cmake --install build
 The `engine/` directory keeps the SpeedCrunch HMath number engine under its
 original GPL-2.0-or-later notices; the expression reader and the interface are
 new.
+
+## Screenshots
+
+![Light theme](docs/screenshot-2026-11-02-light.png)
+![Dark theme](docs/screenshot-2026-11-02-dark.png)
