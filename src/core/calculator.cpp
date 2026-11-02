@@ -5,6 +5,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <limits>
 #include <string_view>
 
 namespace calculator {
@@ -345,10 +346,13 @@ struct NamedFunction
     bool trig = false;
 };
 
-HNumber toRadians(const HNumber& degrees) { return HMath::div(degrees, HNumber(180)).mul(HMath::pi()); }
+HNumber toRadians(const HNumber& degrees)
+{
+    return HMath::mul(HMath::div(degrees, HNumber(180)), HMath::pi());
+}
 HNumber fromRadians(const HNumber& radians)
 {
-    return HMath::div(radians, HMath::pi()).mul(HNumber(180));
+    return HMath::mul(HMath::div(radians, HMath::pi()), HNumber(180));
 }
 
 // Wraps a 1-arg HMath method into the function-pointer shape the table uses.
