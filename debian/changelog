@@ -1,3 +1,15 @@
+lingmo-calculator (1.0.1+lingmo5u1) unstable; urgency=medium
+
+  * feat: add Scientific, Programmer, Date, and Graph calculator modes.
+  * Scientific mode: sin/cos/tan/log/sqrt/exp and more via HMath engine,
+    with RAD/DEG angle unit switch.
+  * Programmer mode: HEX/DEC/OCT/BIN bases, 64/32/16/8-bit widths,
+    bitwise AND/OR/XOR/NOT/shift operations.
+  * Date mode: date difference (days/months/years) and date add/subtract.
+  * Graph mode: function plotter for y=f(x) with pan and zoom.
+
+ -- Lingmo OS Team <team@lingmo.org>  Mon, 02 Nov 2026 13:00:00 +0800
+
 lingmo-calculator (1.0.0) unstable; urgency=medium
 
   * Rewrite as a native Lingmo SDK application.
