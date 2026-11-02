@@ -1,9 +1,16 @@
+# SPDX-FileCopyrightText: 2026 LingmoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 [Desktop Entry]
+Version=1.0
 Name=Calculator
 Name[zh_CN]=计算器
-Exec=/usr/bin/lingmo-calculator
-Icon=lingmo-calculator
+Comment=Perform simple calculations
+Comment[zh_CN]=进行简单计算
+Exec=lingmo-calculator
+Icon=accessories-calculator
 Terminal=false
 Type=Application
+Categories=Utility;Calculator;
+Keywords=Calculator;Math;Arithmetic;
 StartupNotify=true
-Categories=Calculator;

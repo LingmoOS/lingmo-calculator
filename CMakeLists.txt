@@ -1,67 +1,43 @@
-cmake_minimum_required(VERSION 3.5)
+# SPDX-FileCopyrightText: 2026 LingmoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-set(PROJECT_NAME lingmo-calculator)
-project(${PROJECT_NAME})
+cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+project(lingmo-calculator VERSION 1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(QT Core Gui Quick Widgets QuickControls2 LinguistTools)
-find_package(Qt6 REQUIRED ${QT})
-if (MSVC)
-    # fix warning C4819: The file contains a character that cannot be represented in the current code page (936).
-    # Save the file in Unicode format to prevent data loss
-    add_compile_options("/utf-8")
-endif ()
+include(GNUInstallDirs)
+include(CTest)
 
-find_package(LingmoUI3 3.0 REQUIRED)
+find_package(LingmoSDK REQUIRED)
 
-set(SRCS
-    main.cpp
-    calcengine.cpp
-    engine/constants.cpp
-    engine/evaluator.cpp
-    engine/functions.cpp
+# HMath and its arbitrary precision number library are the old SpeedCrunch
+# engine, kept under their GPL-2.0-or-later notices; the expression reader
+# around them is new.
+add_library(calculator-core STATIC
+    src/core/calculator.cpp
     engine/hmath.cpp
     engine/number.c
 )
+target_include_directories(calculator-core PUBLIC src engine)
 
-set(RESOURCES
-    qml.qrc
+add_library(calculator-ui STATIC
+    src/calculatorwindow.cpp
 )
+target_include_directories(calculator-ui PUBLIC src)
+target_link_libraries(calculator-ui PUBLIC calculator-core Lingmo::SDK)
 
-add_executable(${PROJECT_NAME} ${SRCS} ${RESOURCES})
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-        Qt6::Core
-        Qt6::Quick
-        Qt6::QuickControls2
-    PRIVATE
-        LingmoUI3
-)
-if (MSVC)
-    # do nothing
-else()
-    file(GLOB TS_FILES translations/*.ts)
-    foreach(filepath ${TS_FILES})
-        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" filename ${filepath})
-        list(APPEND ts_files_replaced ${filename})
-    endforeach()
-    qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${ts_files_replaced})
-    add_custom_target(translations ALL DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
-endif ()
+add_executable(lingmo-calculator src/main.cpp)
+target_compile_definitions(lingmo-calculator PRIVATE CALCULATOR_VERSION="${PROJECT_VERSION}")
+target_link_libraries(lingmo-calculator PRIVATE calculator-ui)
 
+install(TARGETS lingmo-calculator RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/bin)
+lingmo_add_translations(lingmo-calculator SOURCES src DESKTOP_FILES lingmo-calculator.desktop)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lingmo-calculator.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 
-install(FILES
-    lingmo-calculator.desktop
-    DESTINATION /usr/share/applications/
-    COMPONENT Runtime
-)
-
-install(FILES ${QM_FILES} DESTINATION /usr/share/${PROJECT_NAME}/translations)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

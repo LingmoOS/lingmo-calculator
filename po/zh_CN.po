@@ -1,0 +1,12 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: zh_CN\n"
+
+#: src/calculatorwindow.cpp
+msgid "Calculator"
+msgstr "计算器"
+
+#: src/calculatorwindow.cpp
+msgid "Error"
+msgstr "错误"
