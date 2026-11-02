@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "base/timer.h"
 #include "core/calculator.h"
 
 #include "ui/view.h"

@@ -117,7 +117,7 @@ ProgrammerPage::ProgrammerPage()
 
     m_widthCombo = addChild<ComboBox>(
         std::vector<std::string>{"64-bit", "32-bit", "16-bit", "8-bit"});
-    m_widthCombo->onCurrentChanged = [this](int index) {
+    m_widthCombo->onActivated = [this](int index) {
         const BitWidth widths[] = {BitWidth::Bits64, BitWidth::Bits32, BitWidth::Bits16, BitWidth::Bits8};
         m_calc.setBitWidth(widths[index]);
         refresh();
