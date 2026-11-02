@@ -311,6 +311,10 @@ protected:
             const std::string& text = event.text;
             if (text.size() == 1) {
                 const char c = text.front();
+                if (c == '=') {
+                    evaluate();
+                    return true;
+                }
                 if (std::isdigit(static_cast<unsigned char>(c)) || c == '.' || c == '+' || c == '-'
                     || c == '*' || c == '/' || c == '%' || c == '(' || c == ')' || c == '^') {
                     append(text);

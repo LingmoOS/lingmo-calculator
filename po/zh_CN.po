@@ -10,3 +10,16 @@ msgstr "计算器"
 #: src/calculatorwindow.cpp
 msgid "Error"
 msgstr "错误"
+
+#: src
+msgid "Copy"
+msgstr ""
+
+#: src
+msgid "Copied"
+msgstr ""
+
+#: src
+msgid "Clear"
+msgstr ""
+
