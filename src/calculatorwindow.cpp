@@ -66,8 +66,8 @@ protected:
         m_modeSwitch->setGeometry({(rect.width - switchW) / 2.0, 8, switchW, 28});
 
         const RectF pageRect{0, kHeaderHeight, rect.width, std::max(0.0, rect.height - kHeaderHeight)};
-        for (View* child : children()) {
-            if (child == m_modeSwitch) continue;
+        for (const auto& child : children()) {
+            if (child.get() == m_modeSwitch) continue;
             child->setGeometry(pageRect);
         }
     }

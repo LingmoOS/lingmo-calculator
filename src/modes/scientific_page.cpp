@@ -20,7 +20,6 @@
 #include <cctype>
 #include <chrono>
 #include <cmath>
-#include <system_reminder>
 #include <string>
 #include <vector>
 
@@ -30,10 +29,11 @@ using Lingmo::i18n::tr;
 namespace calculator {
 
 namespace {
-
 constexpr int kMaximumHistory = 40;
+}
 
-class CalcButton : public View
+// CalcButton moved out of anonymous namespace so addChild<CalcButton> can instantiate it
+class ScientificPage::CalcButton : public View
 {
 public:
     CalcButton(std::string text, bool accent = false, double pointSize = 16)
@@ -104,8 +104,6 @@ private:
     bool m_pressed = false;
     Label* m_label = nullptr;
 };
-
-} // namespace
 
 ScientificPage::ScientificPage()
 {

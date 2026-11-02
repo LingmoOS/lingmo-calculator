@@ -4,6 +4,8 @@
 #pragma once
 
 #include "ui/view.h"
+#include "ui/label.h"
+#include "base/timer.h"
 
 #include <functional>
 #include <string>
@@ -45,6 +47,7 @@ private:
     void addUtilityKeys();
     void toggleSign();
     void refresh();
+    Lingmo::ui::RectF displayRect() const;
 
     Lingmo::ui::Label* m_historyLines[3] = {};
     Lingmo::ui::Label* m_expressionLabel = nullptr;

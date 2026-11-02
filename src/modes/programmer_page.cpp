@@ -15,7 +15,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <system_reminder>
 #include <string>
 #include <vector>
 
@@ -24,9 +23,8 @@ using Lingmo::i18n::tr;
 
 namespace calculator {
 
-namespace {
-
-class CalcButton : public View
+// CalcButton moved out of anonymous namespace so addChild<CalcButton> can instantiate it
+class ProgrammerPage::CalcButton : public View
 {
 public:
     CalcButton(std::string text, bool accent = false, double pointSize = 16)
@@ -104,8 +102,6 @@ private:
     bool m_enabled = true;
     Label* m_label = nullptr;
 };
-
-} // namespace
 
 ProgrammerPage::ProgrammerPage()
 {
