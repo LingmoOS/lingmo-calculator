@@ -1,3 +1,11 @@
+lingmo-calculator (1.0.2+lingmo5u1) unstable; urgency=medium
+
+  * ui: replace top SegmentedControl with sidebar navigation.
+  * Sidebar: 200px fixed width, 5 navigation items with system icons.
+  * Window width increased by 200px for all modes to accommodate sidebar.
+
+ -- LingmoOS Team <team@lingmo.org>  Sun, 03 Nov 2026 00:00:00 +0800
+
 lingmo-calculator (1.0.1+lingmo5u1) unstable; urgency=medium
 
   * feat: add Scientific, Programmer, Date, and Graph calculator modes.
