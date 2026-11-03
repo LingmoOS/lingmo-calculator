@@ -13,15 +13,17 @@
 #include "base/paths.h"
 #include "base/settings.h"
 #include "ui/color_id.h"
+#include "ui/icon.h"
 #include "ui/keys.h"
 #include "ui/label.h"
 #include "ui/painter.h"
-#include "ui/segmented_control.h"
 #include "ui/theme.h"
 #include "ui/view.h"
 #include "ui/window.h"
+#include "ui/window_header.h"
 
 #include <algorithm>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -30,51 +32,227 @@ using Lingmo::i18n::tr;
 
 namespace calculator {
 
-// Width/height for each mode (window interior, without chrome).
-static constexpr double kModeWidths[]  = { 400, 600, 520, 460, 680 };
+namespace {
+
+constexpr double kHeaderHeight = 44;
+constexpr double kSidebarWidth = 200;
+constexpr double kNavItemHeight = 48;
+
+} // namespace
+
+// Width/height for each mode (window interior, without chrome). Sidebar width added.
+static constexpr double kModeWidths[]  = { 600, 800, 720, 660, 880 };
 static constexpr double kModeHeights[] = { 664, 664, 624, 464, 584 };
 
-// The top-level view that hosts the mode-selector and the pages.
-class MultiModeRoot : public View
+// A single navigation item in the sidebar.
+class NavigationItem : public View
 {
 public:
-    MultiModeRoot()
+    NavigationItem(const std::string& iconName, const std::string& text)
+        : m_icon(addChild<ThemeIcon>(iconName, 20))
+        , m_text(addChild<Label>(text))
     {
-        m_modeSwitch = addChild<SegmentedControl>(
-            std::vector<std::string>{"Standard", "Scientific", "Programmer", "Date", "Graph"},
-            SegmentedControl::Style::Segmented);
-        m_modeSwitch->setName("modeSwitch");
-        m_modeSwitch->setContentHeight(28);
-        m_modeSwitch->setFontSize(12.5);
+        setName("navigationItem");
+        m_text->setFontSize(13);
+        m_text->setWeight(500);
     }
 
-    SegmentedControl* modeSwitch() const { return m_modeSwitch; }
+    void setSelected(bool selected)
+    {
+        if (m_selected == selected) return;
+        m_selected = selected;
+        invalidate();
+    }
+
+    bool selected() const { return m_selected; }
+
+    std::function<void()> onClicked;
+
+protected:
+    void paint(Painter& painter) override
+    {
+        const Theme& theme = Theme::current();
+        const RectF rect = localRect();
+
+        if (m_selected) {
+            painter.fillRect(rect, theme.surfaceVariant);
+            painter.fillRect({0, 0, 3, rect.height}, theme.accent);
+        } else if (m_hovered) {
+            painter.fillRect(rect, theme.surfaceVariant.withAlpha(0.5));
+        }
+    }
+
+    void layout() override
+    {
+        const RectF rect = localRect();
+        const double iconSize = 20;
+        const double leftPadding = 16;
+        const double iconTextGap = 12;
+
+        m_icon->setGeometry({leftPadding, (rect.height - iconSize) / 2, iconSize, iconSize});
+
+        const double textX = leftPadding + iconSize + iconTextGap;
+        const SizeF textSize = m_text->sizeHint();
+        m_text->setGeometry({textX, (rect.height - textSize.height) / 2,
+                             std::max(0.0, rect.width - textX - 16), textSize.height});
+    }
+
+    bool pointerPress(const PointerEvent& event) override
+    {
+        if (event.button == PointerButton::Primary) {
+            m_pressed = true;
+            return true;
+        }
+        return false;
+    }
+
+    void pointerRelease(const PointerEvent& event) override
+    {
+        if (m_pressed && event.button == PointerButton::Primary) {
+            m_pressed = false;
+            if (localRect().contains(event.position) && onClicked) {
+                onClicked();
+            }
+        }
+    }
+
+    void pointerEnter() override
+    {
+        m_hovered = true;
+        invalidate();
+        setCursor(CursorShape::Pointer);
+    }
+
+    void pointerLeave() override
+    {
+        m_hovered = false;
+        m_pressed = false;
+        invalidate();
+        setCursor(CursorShape::Default);
+    }
+
+private:
+    ThemeIcon* m_icon = nullptr;
+    Label* m_text = nullptr;
+    bool m_selected = false;
+    bool m_hovered = false;
+    bool m_pressed = false;
+};
+
+// The sidebar containing all navigation items.
+class Sidebar : public View
+{
+public:
+    Sidebar()
+    {
+        setName("sidebar");
+    }
+
+    NavigationItem* addItem(const std::string& iconName, const std::string& text)
+    {
+        auto item = addChild<NavigationItem>(iconName, text);
+        m_items.push_back(item);
+        return item;
+    }
+
+    void setCurrentIndex(int index)
+    {
+        if (index < 0 || index >= int(m_items.size())) return;
+        if (m_currentIndex == index) return;
+
+        if (m_currentIndex >= 0 && m_currentIndex < int(m_items.size())) {
+            m_items[m_currentIndex]->setSelected(false);
+        }
+
+        m_currentIndex = index;
+        m_items[index]->setSelected(true);
+    }
+
+    int currentIndex() const { return m_currentIndex; }
+
+    std::function<void(int)> onItemSelected;
+
+protected:
+    void paint(Painter& painter) override
+    {
+        const Theme& theme = Theme::current();
+        const RectF rect = localRect();
+        painter.fillRect(rect, theme.surface);
+        painter.drawVerticalLine(rect.width - 1, 0, rect.height,
+                                 theme.text.withAlpha(0.06), painter.borderWidth(1));
+    }
+
+    void layout() override
+    {
+        const RectF rect = localRect();
+        double y = 12;
+
+        for (auto item : m_items) {
+            item->setGeometry({0, y, rect.width, kNavItemHeight});
+            y += kNavItemHeight;
+        }
+    }
+
+private:
+    std::vector<NavigationItem*> m_items;
+    int m_currentIndex = -1;
+};
+
+// The top-level view with sidebar and content area.
+class SidebarRoot : public View
+{
+public:
+    SidebarRoot()
+        : m_sidebar(addChild<Sidebar>())
+        , m_contentArea(addChild<View>())
+        , m_header(m_contentArea->addChild<WindowHeader>(kHeaderHeight))
+    {
+        setName("calculatorRoot");
+        m_sidebar->setName("sidebar");
+        m_contentArea->setName("contentArea");
+        m_header->setName("header");
+
+        auto title = m_header->setContent<Label>(tr("Calculator"));
+        title->setFontSize(14.5);
+        title->setWeight(600);
+        title->setColor(ColorRecipe(ColorId::Text));
+
+        m_header->setButtonMargin(4);
+        m_header->setButtonsCentered(true);
+    }
+
+    Sidebar* sidebar() const { return m_sidebar; }
+    View* contentArea() const { return m_contentArea; }
 
 protected:
     void paint(Painter& painter) override
     {
         const Theme& theme = Theme::current();
         painter.fillRect(localRect(), theme.background);
-        painter.drawHorizontalLine(0, kHeaderHeight - 1, geometry().width,
-                                   theme.text.withAlpha(0.06), painter.borderWidth(1));
     }
 
     void layout() override
     {
         const RectF rect = localRect();
-        const double switchW = std::min(std::max(rect.width * 0.88, 300.0), rect.width - 24.0);
-        m_modeSwitch->setGeometry({(rect.width - switchW) / 2.0, 8, switchW, 28});
 
-        const RectF pageRect{0, kHeaderHeight, rect.width, std::max(0.0, rect.height - kHeaderHeight)};
-        for (const auto& child : children()) {
-            if (child.get() == m_modeSwitch) continue;
+        m_sidebar->setGeometry({0, 0, kSidebarWidth, rect.height});
+
+        const RectF contentRect{kSidebarWidth, 0, std::max(0.0, rect.width - kSidebarWidth), rect.height};
+        m_contentArea->setGeometry(contentRect);
+
+        m_header->setGeometry({0, 0, contentRect.width, kHeaderHeight});
+
+        const RectF pageRect{0, kHeaderHeight, contentRect.width, std::max(0.0, contentRect.height - kHeaderHeight)};
+        for (const auto& child : m_contentArea->children()) {
+            if (child.get() == m_header) continue;
             child->setGeometry(pageRect);
         }
     }
 
 private:
-    static constexpr double kHeaderHeight = 44;
-    SegmentedControl* m_modeSwitch = nullptr;
+    Sidebar* m_sidebar = nullptr;
+    View* m_contentArea = nullptr;
+    WindowHeader* m_header = nullptr;
 };
 
 // ---- CalculatorWindow ----------------------------------------------------
@@ -82,23 +260,44 @@ private:
 CalculatorWindow::CalculatorWindow()
 {
     m_window.setTitle(tr("Calculator"));
-    m_window.setMinimumSize({340, 500});
+    m_window.setMinimumSize({540, 500});
 
-    auto root = std::make_unique<MultiModeRoot>();
+    auto root = std::make_unique<SidebarRoot>();
     m_root = root.get();
 
-    m_standardPage   = m_root->addChild<StandardPage>();
-    m_scientificPage = m_root->addChild<ScientificPage>();
-    m_programmerPage = m_root->addChild<ProgrammerPage>();
-    m_datePage       = m_root->addChild<DatePage>();
-    m_graphPage      = m_root->addChild<GraphPage>();
+    // Add navigation items with system icons.
+    auto sidebar = static_cast<SidebarRoot*>(m_root)->sidebar();
+    sidebar->addItem("accessories-calculator", tr("Standard"));
+    sidebar->addItem("x-office-spreadsheet", tr("Scientific"));
+    sidebar->addItem("application-x-executable", tr("Programmer"));
+    sidebar->addItem("x-office-calendar", tr("Date Calculator"));
+    sidebar->addItem("office-chart", tr("Graphing"));
+
+    // Add pages to content area.
+    auto contentArea = static_cast<SidebarRoot*>(m_root)->contentArea();
+    m_standardPage   = contentArea->addChild<StandardPage>();
+    m_scientificPage = contentArea->addChild<ScientificPage>();
+    m_programmerPage = contentArea->addChild<ProgrammerPage>();
+    m_datePage       = contentArea->addChild<DatePage>();
+    m_graphPage      = contentArea->addChild<GraphPage>();
 
     m_window.setContentView(std::move(root));
 
-    // Wire mode selector.
-    m_root->modeSwitch()->onCurrentChanged = [this](int index) {
+    // Wire sidebar selection.
+    sidebar->onItemSelected = [this](int index) {
         setMode(static_cast<Mode>(index));
     };
+
+    // Wire navigation items click.
+    for (int i = 0; i < 5; ++i) {
+        auto item = static_cast<NavigationItem*>(sidebar->children()[i].get());
+        item->onClicked = [this, sidebar, i]() {
+            sidebar->setCurrentIndex(i);
+            if (sidebar->onItemSelected) {
+                sidebar->onItemSelected(i);
+            }
+        };
+    }
 
     // Restore saved mode.
     Lingmo::base::Settings settings(Lingmo::base::paths::lingmoConfig("calculator"));
@@ -106,7 +305,7 @@ CalculatorWindow::CalculatorWindow()
     const Mode initial = (saved >= 0 && saved < int(Mode::Count))
                          ? static_cast<Mode>(saved) : Mode::Standard;
     applyMode(initial);
-    m_root->modeSwitch()->setCurrentIndex(int(initial));
+    sidebar->setCurrentIndex(int(initial));
 }
 
 CalculatorWindow::~CalculatorWindow()
