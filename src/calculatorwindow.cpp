@@ -61,7 +61,7 @@ public:
     {
         if (m_selected == selected) return;
         m_selected = selected;
-        invalidate();
+        requestPaint();
     }
 
     bool selected() const { return m_selected; }
@@ -75,10 +75,10 @@ protected:
         const RectF rect = localRect();
 
         if (m_selected) {
-            painter.fillRect(rect, theme.surfaceVariant);
-            painter.fillRect({0, 0, 3, rect.height}, theme.accent);
+            painter.fillRect(rect, theme.alternateBackground);
+            painter.fillRect({0, 0, 3, rect.height}, theme.highlight);
         } else if (m_hovered) {
-            painter.fillRect(rect, theme.surfaceVariant.withAlpha(0.5));
+            painter.fillRect(rect, theme.alternateBackground.withAlpha(0.5));
         }
     }
 
@@ -97,18 +97,16 @@ protected:
                              std::max(0.0, rect.width - textX - 16), textSize.height});
     }
 
-    bool pointerPress(const PointerEvent& event) override
+    void pointerPress(const PointerEvent& event) override
     {
-        if (event.button == PointerButton::Primary) {
+        if (event.button == MouseButton::Left) {
             m_pressed = true;
-            return true;
         }
-        return false;
     }
 
     void pointerRelease(const PointerEvent& event) override
     {
-        if (m_pressed && event.button == PointerButton::Primary) {
+        if (m_pressed && event.button == MouseButton::Left) {
             m_pressed = false;
             if (localRect().contains(event.position) && onClicked) {
                 onClicked();
@@ -119,16 +117,16 @@ protected:
     void pointerEnter() override
     {
         m_hovered = true;
-        invalidate();
-        setCursor(CursorShape::Pointer);
+        requestPaint();
+        setCursorShape(CursorShape::Pointer);
     }
 
     void pointerLeave() override
     {
         m_hovered = false;
         m_pressed = false;
-        invalidate();
-        setCursor(CursorShape::Default);
+        requestPaint();
+        setCursorShape(CursorShape::Default);
     }
 
 private:
@@ -177,7 +175,7 @@ protected:
     {
         const Theme& theme = Theme::current();
         const RectF rect = localRect();
-        painter.fillRect(rect, theme.surface);
+        painter.fillRect(rect, theme.secondBackground);
         painter.drawVerticalLine(rect.width - 1, 0, rect.height,
                                  theme.text.withAlpha(0.06), painter.borderWidth(1));
     }
@@ -266,7 +264,7 @@ CalculatorWindow::CalculatorWindow()
     m_root = root.get();
 
     // Add navigation items with system icons.
-    auto sidebar = static_cast<SidebarRoot*>(m_root)->sidebar();
+    Sidebar* sidebar = m_root->sidebar();
     sidebar->addItem("accessories-calculator", tr("Standard"));
     sidebar->addItem("x-office-spreadsheet", tr("Scientific"));
     sidebar->addItem("application-x-executable", tr("Programmer"));
@@ -274,7 +272,7 @@ CalculatorWindow::CalculatorWindow()
     sidebar->addItem("office-chart", tr("Graphing"));
 
     // Add pages to content area.
-    auto contentArea = static_cast<SidebarRoot*>(m_root)->contentArea();
+    View* contentArea = m_root->contentArea();
     m_standardPage   = contentArea->addChild<StandardPage>();
     m_scientificPage = contentArea->addChild<ScientificPage>();
     m_programmerPage = contentArea->addChild<ProgrammerPage>();
@@ -290,12 +288,12 @@ CalculatorWindow::CalculatorWindow()
 
     // Wire navigation items click.
     for (int i = 0; i < 5; ++i) {
-        auto item = static_cast<NavigationItem*>(sidebar->children()[i].get());
-        item->onClicked = [this, sidebar, i]() {
-            sidebar->setCurrentIndex(i);
-            if (sidebar->onItemSelected) {
-                sidebar->onItemSelected(i);
-            }
+        auto* item = static_cast<NavigationItem*>(sidebar->children()[i].get());
+        const int idx = i;
+        item->onClicked = [this, idx]() {
+            m_root->sidebar()->setCurrentIndex(idx);
+            if (m_root->sidebar()->onItemSelected)
+                m_root->sidebar()->onItemSelected(idx);
         };
     }
 
@@ -305,7 +303,7 @@ CalculatorWindow::CalculatorWindow()
     const Mode initial = (saved >= 0 && saved < int(Mode::Count))
                          ? static_cast<Mode>(saved) : Mode::Standard;
     applyMode(initial);
-    sidebar->setCurrentIndex(int(initial));
+    m_root->sidebar()->setCurrentIndex(int(initial));
 }
 
 CalculatorWindow::~CalculatorWindow()

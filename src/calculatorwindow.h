@@ -16,7 +16,7 @@ namespace calculator {
 
 class DatePage;
 class GraphPage;
-class MultiModeRoot;
+class SidebarRoot;
 class ProgrammerPage;
 class ScientificPage;
 class StandardPage;
@@ -58,7 +58,7 @@ private:
     void applyMode(Mode mode);
 
     Lingmo::ui::Window m_window;
-    MultiModeRoot* m_root = nullptr;
+    SidebarRoot* m_root = nullptr;
     StandardPage* m_standardPage = nullptr;
     ScientificPage* m_scientificPage = nullptr;
     ProgrammerPage* m_programmerPage = nullptr;
