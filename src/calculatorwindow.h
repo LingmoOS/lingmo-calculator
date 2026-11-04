@@ -62,7 +62,6 @@ public:
 private:
     void applyMode(Mode mode);
     static const char* modeName(Mode mode);
-    std::vector<GlobalMenuExporter::Entry> buildMenuEntries();
 
     Lingmo::ui::Window m_window;
     CalcRoot* m_root = nullptr;

@@ -315,7 +315,25 @@ CalculatorWindow::CalculatorWindow()
     auto* bus = Lingmo::base::dbus::Connection::session();
     if (bus) {
         m_menuExporter = std::make_unique<GlobalMenuExporter>(bus, [this] {
-            return buildMenuEntries();
+            using Entry = GlobalMenuExporter::Entry;
+            struct ModeItem { Mode mode; const char* label; };
+            static constexpr ModeItem kModes[] = {
+                { Mode::Standard,   "Standard"        },
+                { Mode::Scientific, "Scientific"      },
+                { Mode::Programmer, "Programmer"      },
+                { Mode::Date,       "Date Calculator" },
+                { Mode::Graph,      "Graphing"        },
+            };
+            Entry modeMenu;
+            modeMenu.label = tr("Mode");
+            for (const auto& mk : kModes) {
+                Entry item;
+                item.label   = tr(mk.label);
+                item.checked = (m_mode == mk.mode);
+                item.action  = [this, mode = mk.mode] { setMode(mode); };
+                modeMenu.children.push_back(std::move(item));
+            }
+            return { std::move(modeMenu) };
         });
     }
 
@@ -334,31 +352,6 @@ CalculatorWindow::~CalculatorWindow()
     settings.sync();
 }
 
-std::vector<GlobalMenuExporter::Entry> CalculatorWindow::buildMenuEntries()
-{
-    using Entry = GlobalMenuExporter::Entry;
-
-    struct ModeItem { Mode mode; const char* label; };
-    static constexpr ModeItem kModes[] = {
-        { Mode::Standard,   "Standard"        },
-        { Mode::Scientific, "Scientific"      },
-        { Mode::Programmer, "Programmer"      },
-        { Mode::Date,       "Date Calculator" },
-        { Mode::Graph,      "Graphing"        },
-    };
-
-    Entry modeMenu;
-    modeMenu.label = tr("Mode");
-    for (const auto& m : kModes) {
-        Entry item;
-        item.label   = tr(m.label);
-        item.checked = (m_mode == m.mode);
-        item.action  = [this, mode = m.mode] { setMode(mode); };
-        modeMenu.children.push_back(std::move(item));
-    }
-
-    return { std::move(modeMenu) };
-}
 
 void CalculatorWindow::applyMode(Mode mode)
 {
