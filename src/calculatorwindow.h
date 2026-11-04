@@ -5,18 +5,22 @@
 
 #include "ui/window.h"
 
+#include <system_reminder>
 #include <string>
 #include <vector>
 
 namespace Lingmo::ui {
+class HeaderButton;
+class Label;
+class Menu;
 class View;
 }
 
 namespace calculator {
 
+class CalcRoot;
 class DatePage;
 class GraphPage;
-class SidebarRoot;
 class ProgrammerPage;
 class ScientificPage;
 class StandardPage;
@@ -56,9 +60,14 @@ public:
 
 private:
     void applyMode(Mode mode);
+    void openModeMenu();
+    static const char* modeName(Mode mode);
 
     Lingmo::ui::Window m_window;
-    SidebarRoot* m_root = nullptr;
+    CalcRoot* m_root = nullptr;
+    Lingmo::ui::Label* m_modeLabel = nullptr;
+    Lingmo::ui::HeaderButton* m_optionsButton = nullptr;
+    std::unique_ptr<Lingmo::ui::Menu> m_menu;
     StandardPage* m_standardPage = nullptr;
     ScientificPage* m_scientificPage = nullptr;
     ProgrammerPage* m_programmerPage = nullptr;

@@ -1,3 +1,11 @@
+lingmo-calculator (1.0.3+lingmo5u1) unstable; urgency=medium
+
+  * ui: remove 200px sidebar; mode switching now uses a HeaderButton ("menu"
+    artwork) in the WindowHeader that opens a popup Menu with checkmarks.
+  * Window widths reduced to compact sizes without sidebar padding.
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 04 Nov 2026 14:30:00 +0800
+
 lingmo-calculator (1.0.2+lingmo5u1) unstable; urgency=medium
 
   * ui: replace top SegmentedControl with sidebar navigation.
