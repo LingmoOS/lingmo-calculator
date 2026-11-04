@@ -80,6 +80,8 @@ private:
     View* m_content;
 };
 
+} // anonymous namespace
+
 // ─── Global menu exporter (com.canonical.dbusmenu) ───────────────────────────
 //
 // Exports the mode-switcher submenu to the compositor's menu bar through
@@ -272,8 +274,6 @@ private:
     uint32_t                              m_revision = 1;
     std::shared_ptr<bool>                 m_alive = std::make_shared<bool>(true);
 };
-
-} // namespace
 
 // ─── CalculatorWindow ─────────────────────────────────────────────────────────
 
