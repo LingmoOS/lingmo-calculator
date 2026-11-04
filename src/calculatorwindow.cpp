@@ -32,7 +32,7 @@ using Lingmo::i18n::tr;
 
 namespace calculator {
 
-constexpr double kHeaderHeight = 44;
+static constexpr double kHeaderHeight = 44;
 
 static constexpr double kModeWidths[]  = { 340, 520, 480, 420, 600 };
 static constexpr double kModeHeights[] = { 664, 664, 624, 464, 584 };
