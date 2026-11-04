@@ -10,9 +10,7 @@
 #include <vector>
 
 namespace Lingmo::ui {
-class HeaderButton;
 class Label;
-class Menu;
 class View;
 }
 
@@ -20,13 +18,16 @@ namespace calculator {
 
 class CalcRoot;
 class DatePage;
+class GlobalMenuExporter;
 class GraphPage;
 class ProgrammerPage;
 class ScientificPage;
 class StandardPage;
 
 // The calculator window. The standard page's API is preserved unchanged for
-// tests; the window also supports switching between five modes.
+// tests; the window also supports switching between five modes.  The mode
+// menu is exported to the compositor's global menu bar via
+// com.canonical.AppMenu.Registrar rather than shown inside the window.
 class CalculatorWindow
 {
 public:
@@ -60,14 +61,12 @@ public:
 
 private:
     void applyMode(Mode mode);
-    void openModeMenu();
     static const char* modeName(Mode mode);
+    std::vector<GlobalMenuExporter::Entry> buildMenuEntries();
 
     Lingmo::ui::Window m_window;
     CalcRoot* m_root = nullptr;
-    Lingmo::ui::Label* m_modeLabel = nullptr;
-    Lingmo::ui::HeaderButton* m_optionsButton = nullptr;
-    std::unique_ptr<Lingmo::ui::Menu> m_menu;
+    std::unique_ptr<GlobalMenuExporter> m_menuExporter;
     StandardPage* m_standardPage = nullptr;
     ScientificPage* m_scientificPage = nullptr;
     ProgrammerPage* m_programmerPage = nullptr;
