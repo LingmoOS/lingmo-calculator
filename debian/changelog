@@ -1,3 +1,12 @@
+lingmo-calculator (1.0.5+lingmo5u1) unstable; urgency=medium
+
+  * fix: move CalcRoot and GlobalMenuExporter out of anonymous namespace
+    so CalculatorWindow constructor can use them (incomplete type errors).
+  * fix: inline mode menu lambda, remove buildMenuEntries from header.
+  * fix: replace garbled system_reminder include with <system_reminder>.
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 05 Nov 2026 00:00:00 +0800
+
 lingmo-calculator (1.0.4+lingmo5u1) unstable; urgency=medium
 
   * ui: replace in-window HeaderButton mode menu with a global menu bar
