@@ -32,8 +32,6 @@ using Lingmo::i18n::tr;
 
 namespace calculator {
 
-namespace {
-
 constexpr double kHeaderHeight = 44;
 
 static constexpr double kModeWidths[]  = { 340, 520, 480, 420, 600 };
@@ -79,8 +77,6 @@ private:
     WindowHeader* m_header;
     View* m_content;
 };
-
-} // anonymous namespace
 
 // ─── Global menu exporter (com.canonical.dbusmenu) ───────────────────────────
 //
@@ -333,7 +329,7 @@ CalculatorWindow::CalculatorWindow()
                 item.action  = [this, mode = mk.mode] { setMode(mode); };
                 modeMenu.children.push_back(std::move(item));
             }
-            return { std::move(modeMenu) };
+            return std::vector<GlobalMenuExporter::Entry>{ std::move(modeMenu) };
         });
     }
 
