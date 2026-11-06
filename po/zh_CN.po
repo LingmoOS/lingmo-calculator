@@ -156,3 +156,6 @@ msgstr "使用弧度制"
 
 msgid "Standard, scientific, graphing and 64-bit programmer calculator. History stays in this session."
 msgstr "支持标准、科学计算、函数图像和 64 位程序员模式。历史记录保留在本次会话中。"
+
+msgid "calculate;arithmetic;math;"
+msgstr "计算;算术;数学;"
